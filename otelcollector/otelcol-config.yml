@@ -1,0 +1,42 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+extensions:
+  oauth2client:
+    client_id: <youruser>
+    client_secret: <yourpwd>
+    token_url: https://www.retit.io/tokenservice/token/opentelemetry
+
+#
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        cors:
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+
+exporters:
+  otlphttp:
+    compression: none
+    endpoint: https://www.retit.io/service/opentelemetry
+    headers:
+      "Datascope-Id": "<yourds>"
+    auth:
+       authenticator: oauth2client
+
+processors:
+  batch:
+
+connectors:
+  spanmetrics:
+
+service:
+  extensions: [ oauth2client ]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
